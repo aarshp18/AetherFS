@@ -1,0 +1,67 @@
+# ==========================================
+# Rust / Cargo
+# ==========================================
+# Build artifacts
+/target/
+**/target/
+
+# Cargo lock files (optional for libraries, but for binaries we track Cargo.lock.
+# However, if building crates locally in subfolders, ignore standalone lock files if not needed)
+# Cargo.lock
+
+# Cargo backup and test files
+**/*.rs.bk
+*.pdb
+
+# ==========================================
+# Node / Frontend (for the PWA later)
+# ==========================================
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+/web/dist/
+/web/build/
+/web/.svelte-kit/
+.next/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment variables
+.env
+.env.local
+.env.*.local
+
+# ==========================================
+# Development & Testing Scratchpads
+# ==========================================
+# Local test workspace directories (don't commit files you test-streamed)
+/test_workspace/
+/daemon/test_workspace/
+*.log
+
+# ==========================================
+# Operating System & IDE Files
+# ==========================================
+# Linux / macOS
+.DS_Store
+.directory
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
