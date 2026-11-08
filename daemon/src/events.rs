@@ -35,6 +35,18 @@ pub fn normalize_relative_path(root: &Path, path: &Path) -> String {
     cleaned.to_string()
 }
 
+pub fn is_ignored_path(rel_path: &str) -> bool {
+    let trimmed = rel_path.trim_start_matches('/');
+    trimmed.starts_with(".cache")
+        || trimmed.starts_with(".git")
+        || trimmed.starts_with("node_modules")
+        || trimmed.starts_with("target")
+        || trimmed.contains("/.cache")
+        || trimmed.contains("/.git")
+        || trimmed.contains("/node_modules")
+        || trimmed.contains("/target")
+}
+
 pub struct EventEngine {
     tx: broadcast::Sender<FsEvent>,
     _watcher: RecommendedWatcher,
@@ -68,6 +80,9 @@ impl EventEngine {
                     } else {
                         for p in &event.paths {
                             let rel = normalize_relative_path(&root_for_callback, p);
+                            if is_ignored_path(&rel) {
+                                continue;
+                            }
                             let fs_event = FsEvent {
                                 kind: kind.clone(),
                                 path: rel,
@@ -199,5 +214,20 @@ mod tests {
             }
         }
         assert!(found_remove, "Should receive remove event for hello.txt");
+    }
+
+    #[test]
+    fn test_is_ignored_path() {
+        assert!(is_ignored_path(".cache"));
+        assert!(is_ignored_path(".cache/BraveSoftware"));
+        assert!(is_ignored_path(".git"));
+        assert!(is_ignored_path(".git/index"));
+        assert!(is_ignored_path("node_modules/vite/bin.js"));
+        assert!(is_ignored_path("target/debug/daemon"));
+        assert!(is_ignored_path("web/node_modules/react"));
+        assert!(is_ignored_path("daemon/target/release"));
+        assert!(!is_ignored_path("src/main.rs"));
+        assert!(!is_ignored_path("README.md"));
+        assert!(!is_ignored_path("Cargo.toml"));
     }
 }

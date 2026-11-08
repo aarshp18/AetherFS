@@ -28,7 +28,7 @@ AetherFS bridges this divide by decoupling local storage from device-specific ve
 - [x] **Project Scaffolding:** Workspace layout and dependency setup.
 - [x] **Milestone 1:** Headless read-only streaming daemon with path canonicalization security.
 - [x] **Milestone 2:** Real-time directory watching (`notify`) and WebSocket event streaming.
-- [ ] **Milestone 3:** Progressive Web App (PWA) with on-demand previews and virtualized file tree.
+- [x] **Milestone 3:** Progressive Web App (PWA) with on-demand previews and virtualized file tree.
 - [ ] **Milestone 4:** Resilient chunked uploads and cross-device clipboard buffer.
 
 ---
@@ -47,6 +47,7 @@ AetherFS is built to expose designated local directories without risking the hos
 ### Prerequisites
 
 - [Rust & Cargo](https://rustup.rs/) (edition 2021+)
+- [Node.js & npm](https://nodejs.org/) (v18+)
 
 ### Running the Daemon (Local Dev)
 
@@ -60,3 +61,16 @@ cargo test
 
 # Start the daemon on localhost
 cargo run -- --bind 127.0.0.1:8080 --root ./test_workspace
+```
+
+### Running the Web UI (Local Dev)
+
+```bash
+cd web
+
+# Install dependencies
+npm install
+
+# Start Vite dev server with proxy to daemon (http://127.0.0.1:8080)
+npm run dev
+```

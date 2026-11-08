@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/api.ts","./src/main.tsx","./src/types.ts","./src/useEvents.ts","./src/vite-env.d.ts","./src/components/FileTree.tsx","./src/components/FileViewer.tsx"],"version":"5.9.3"}
