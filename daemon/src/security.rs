@@ -20,7 +20,7 @@ impl std::fmt::Display for SecurityError {
 
 pub fn validate_safe_path(root: &Path, requested_rel_path: &str) -> Result<PathBuf, SecurityError> {
     // Normalize requested_rel_path by trimming leading '/' or '\'
-    let cleaned_path = requested_rel_path.trim_start_matches(|c| c == '/' || c == '\\');
+    let cleaned_path = requested_rel_path.trim_start_matches(['/', '\\']);
     
     let target = root.join(cleaned_path);
     

@@ -26,8 +26,8 @@ AetherFS bridges this divide by decoupling local storage from device-specific ve
 ## Features (Planned & Roadmap)
 
 - [x] **Project Scaffolding:** Workspace layout and dependency setup.
-- [ ] **Milestone 1:** Headless read-only streaming daemon with path canonicalization security.
-- [ ] **Milestone 2:** Real-time directory watching (`notify`) and WebSocket event streaming.
+- [x] **Milestone 1:** Headless read-only streaming daemon with path canonicalization security.
+- [x] **Milestone 2:** Real-time directory watching (`notify`) and WebSocket event streaming.
 - [ ] **Milestone 3:** Progressive Web App (PWA) with on-demand previews and virtualized file tree.
 - [ ] **Milestone 4:** Resilient chunked uploads and cross-device clipboard buffer.
 
@@ -52,7 +52,7 @@ AetherFS is built to expose designated local directories without risking the hos
 
 ```bash
 # Clone the repository
-git clone [https://github.com/](https://github.com/)<your-username>/aetherfs.git
+git clone https://github.com/aarshp18/AetherFS.git
 cd aetherfs/daemon
 
 # Run the test suite

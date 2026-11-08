@@ -1,4 +1,5 @@
 mod config;
+pub mod events;
 mod routes;
 mod security;
 
