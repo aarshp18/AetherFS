@@ -49,28 +49,40 @@ AetherFS is built to expose designated local directories without risking the hos
 - [Rust & Cargo](https://rustup.rs/) (edition 2021+)
 - [Node.js & npm](https://nodejs.org/) (v18+)
 
-### Running the Daemon (Local Dev)
+### Running the Daemon
+
+Because the repository uses a Cargo workspace, you can run all Cargo commands directly from the project root (`AetherFS/`):
 
 ```bash
 # Clone the repository
 git clone https://github.com/aarshp18/AetherFS.git
-cd aetherfs/daemon
+cd AetherFS
 
 # Run the test suite
 cargo test
 
-# Start the daemon on localhost
-cargo run -- --bind 127.0.0.1:8080 --root ./test_workspace
+# Start the daemon (binds to 0.0.0.0:8080 by default)
+cargo run -- --root ~
+
+# Or run in release mode for faster file streaming & uploads
+cargo run --release -- --root ~
 ```
 
-### Running the Web UI (Local Dev)
+> **Tip:** Pass `--token <your-secret>` to enable Bearer token authentication, or `--bind 127.0.0.1:8080` to restrict access to localhost only.
+
+### Running the Web UI
 
 ```bash
 cd web
 
-# Install dependencies
+# Install dependencies (first time or after dependency updates)
 npm install
 
-# Start Vite dev server with proxy to daemon (http://127.0.0.1:8080)
-npm run dev
+# Option 1: Development server with hot-reload (accessible at http://<host-ip>:3000)
+npm run dev -- --host 0.0.0.0
+
+# Option 2: Production PWA build & preview (accessible at http://<host-ip>:4173)
+npm run build && npm run preview -- --host 0.0.0.0
 ```
+
+> **Accessing from another device:** Open `http://<host-ip>:4173` (when using `preview`) or `http://<host-ip>:3000` (when using `dev`) in your mobile/tablet browser over LAN or Tailscale. The UI will automatically connect to the daemon on port `8080`.
