@@ -2,7 +2,7 @@
 
 A lightweight, asynchronous workspace bridge and file-streaming daemon written in Rust, paired with a modern Progressive Web App (PWA) client.
 
-> **Status:** Active development (v0.1-alpha). Architecture and API specifications are in progress.
+> **Status:** First alpha (`v0.1-alpha`) is ready to use, though still in active development.
 
 ---
 
@@ -29,7 +29,7 @@ AetherFS bridges this divide by decoupling local storage from device-specific ve
 - [x] **Milestone 1:** Headless read-only streaming daemon with path canonicalization security.
 - [x] **Milestone 2:** Real-time directory watching (`notify`) and WebSocket event streaming.
 - [x] **Milestone 3:** Progressive Web App (PWA) with on-demand previews and virtualized file tree.
-- [ ] **Milestone 4:** Resilient chunked uploads and cross-device clipboard buffer.
+- [x] **Milestone 4:** Resilient chunked uploads and cross-device clipboard buffer.
 
 ---
 
