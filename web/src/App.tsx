@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Layers, Radio, Activity } from 'lucide-react';
-import { FileTree } from './components/FileTree';
+import { Layers, Radio, Activity, Clipboard } from 'lucide-react';
+import { FileExplorer } from './components/FileExplorer';
 import { FileViewer } from './components/FileViewer';
+import { NetworkClipboard } from './components/NetworkClipboard';
 import { useEvents, isIgnoredPath } from './useEvents';
 import { FsEvent } from './types';
 
@@ -12,6 +13,7 @@ export default function App() {
   const [treeRefreshKey, setTreeRefreshKey] = useState<number>(0);
   const [fileRefreshKey, setFileRefreshKey] = useState<number>(0);
   const [lastEvent, setLastEvent] = useState<FsEvent | null>(null);
+  const [isClipboardOpen, setIsClipboardOpen] = useState<boolean>(true);
 
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -62,7 +64,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-950 text-gray-100 font-sans">
       {/* Main Two-Column Layout */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden relative">
         {/* Left Sidebar (280px) */}
         <aside className="w-72 md:w-80 border-r border-gray-800 bg-gray-900/40 flex flex-col shrink-0 select-none">
           {/* Header */}
@@ -81,27 +83,41 @@ export default function App() {
               </div>
             </div>
 
-            {/* Connection Status Badge */}
-            <div
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                isConnected
-                  ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-400'
-                  : 'bg-amber-950/40 border-amber-800/60 text-amber-400 animate-pulse'
-              }`}
-              title={
-                isConnected
-                  ? 'Connected to daemon real-time event engine'
-                  : 'Disconnected. Attempting auto-reconnect...'
-              }
-            >
-              <Radio className="w-3 h-3 shrink-0" />
-              <span>{isConnected ? 'Live' : 'Offline'}</span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsClipboardOpen((prev) => !prev)}
+                title="Toggle Network Clipboard"
+                className={`p-1.5 rounded-lg border text-xs transition-colors ${
+                  isClipboardOpen
+                    ? 'bg-blue-600/20 border-blue-500/40 text-blue-400'
+                    : 'bg-gray-800/60 border-gray-700/60 text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <Clipboard className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Connection Status Badge */}
+              <div
+                className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border ${
+                  isConnected
+                    ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-400'
+                    : 'bg-amber-950/40 border-amber-800/60 text-amber-400 animate-pulse'
+                }`}
+                title={
+                  isConnected
+                    ? 'Connected to daemon real-time event engine'
+                    : 'Disconnected. Attempting auto-reconnect...'
+                }
+              >
+                <Radio className="w-3 h-3 shrink-0" />
+                <span>{isConnected ? 'Live' : 'Offline'}</span>
+              </div>
             </div>
           </div>
 
-          {/* Recursive File Tree */}
+          {/* Recursive File Explorer */}
           <div className="flex-1 overflow-hidden">
-            <FileTree
+            <FileExplorer
               onSelectFile={(path) => setSelectedFile(path)}
               selectedFile={selectedFile}
               refreshTrigger={treeRefreshKey}
@@ -110,8 +126,15 @@ export default function App() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 bg-gray-950 overflow-hidden">
+        <main className="flex-1 flex flex-col min-w-0 bg-gray-950 overflow-hidden relative">
           <FileViewer filePath={selectedFile} refreshTrigger={fileRefreshKey} />
+
+          {/* Floating Network Clipboard Panel */}
+          {isClipboardOpen && (
+            <div className="fixed bottom-9 right-4 z-30 w-80 sm:w-96">
+              <NetworkClipboard />
+            </div>
+          )}
         </main>
       </div>
 
@@ -140,3 +163,4 @@ export default function App() {
     </div>
   );
 }
+

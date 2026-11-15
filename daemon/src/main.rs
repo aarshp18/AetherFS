@@ -1,7 +1,10 @@
 mod config;
 pub mod events;
+pub mod handlers;
 mod routes;
 mod security;
+
+pub use routes::AppState;
 
 use clap::Parser;
 use config::Config;

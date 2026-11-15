@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Folder,
   FolderOpen,
@@ -14,9 +14,10 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
+  Upload,
 } from 'lucide-react';
 import { FsItem } from '../types';
-import { fetchDirectory } from '../api';
+import { fetchDirectory, API_BASE_URL } from '../api';
 
 interface FileTreeProps {
   onSelectFile: (path: string) => void;
@@ -204,6 +205,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
   const [rootItems, setRootItems] = useState<FsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const currentPath = selectedFile && selectedFile.includes('/')
+    ? selectedFile.slice(0, selectedFile.lastIndexOf('/'))
+    : '';
 
   const loadRoot = useCallback(async () => {
     setLoading(true);
@@ -222,17 +229,69 @@ export const FileTree: React.FC<FileTreeProps> = ({
     loadRoot();
   }, [loadRoot, refreshTrigger]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(
+        `${API_BASE_URL}/api/v1/fs/upload?path=${encodeURIComponent(currentPath)}`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
+      }
+
+      await loadRoot();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload file');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden select-none">
-      <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 border-b border-gray-800">
+      <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 border-b border-gray-800 gap-2">
         <span>Files</span>
-        <button
-          onClick={() => loadRoot()}
-          title="Refresh files"
-          className="p-1 rounded text-gray-400 hover:text-gray-100 hover:bg-gray-800 transition-colors"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            title="Upload File"
+            className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium normal-case tracking-normal bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 transition-colors disabled:opacity-50"
+          >
+            {uploading ? (
+              <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+            ) : (
+              <Upload className="w-3 h-3 shrink-0" />
+            )}
+            <span>Upload File</span>
+          </button>
+          <button
+            onClick={() => loadRoot()}
+            title="Refresh files"
+            className="p-1 rounded text-gray-400 hover:text-gray-100 hover:bg-gray-800 transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto py-2 px-1">

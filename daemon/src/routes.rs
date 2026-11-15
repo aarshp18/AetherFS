@@ -2,24 +2,26 @@ use axum::{
     body::Body,
     extract::{
         ws::{Message, WebSocket, WebSocketUpgrade},
-        Query, State,
+        DefaultBodyLimit, Query, State,
     },
     http::{header, Request, StatusCode},
     middleware::{self, Next},
     response::{IntoResponse, Response},
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
-use futures_util::{SinkExt, StreamExt};
+use futures::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::fs::{self, File};
+use tokio::sync::RwLock;
 use tokio_util::io::ReaderStream;
 use tower_http::cors::CorsLayer;
 
 use crate::{
     config::Config,
     events::{EventEngine, FsEvent},
+    handlers,
     security::{self, SecurityError},
 };
 
@@ -29,6 +31,7 @@ pub struct AppState {
     pub event_tx: tokio::sync::broadcast::Sender<FsEvent>,
     #[allow(dead_code)]
     pub(crate) engine: Option<Arc<std::sync::Mutex<EventEngine>>>,
+    pub clipboard: Arc<RwLock<String>>,
 }
 
 pub fn create_router(config: Config) -> Router {
@@ -48,6 +51,7 @@ pub fn create_router(config: Config) -> Router {
         config,
         event_tx,
         engine,
+        clipboard: Arc::new(RwLock::new(String::new())),
     };
 
     build_router(state)
@@ -62,6 +66,7 @@ pub fn create_router_with_sender(
         config,
         event_tx,
         engine: None,
+        clipboard: Arc::new(RwLock::new(String::new())),
     };
 
     build_router(state)
@@ -72,6 +77,14 @@ fn build_router(state: AppState) -> Router {
         .route("/ping", get(ping))
         .route("/fs/ls", get(ls))
         .route("/fs/cat", get(cat))
+        .route(
+            "/fs/upload",
+            post(handlers::upload_file).layer(DefaultBodyLimit::disable()),
+        )
+        .route(
+            "/clipboard",
+            get(handlers::get_clipboard).post(handlers::set_clipboard),
+        )
         .route("/fs/events", get(ws_events_handler))
         .route("/events", get(ws_events_handler));
 
